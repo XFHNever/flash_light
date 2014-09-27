@@ -6,7 +6,7 @@
 
     <groupId>nju.edu.cn</groupId>
     <artifactId>flashlight</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0</version>
 
     <dependencies>
 
