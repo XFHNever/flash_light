@@ -1,19 +1,22 @@
 package com.example.flashlight;
 
 import android.app.Activity;
-import android.content.ContentResolver;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.os.Parcelable;
+import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.example.flashlight.util.ShortcutUtil;
 
 public class MyActivity extends Activity implements View.OnClickListener {
     private Camera camera;
@@ -22,6 +25,8 @@ public class MyActivity extends Activity implements View.OnClickListener {
 
     //exit
     private long mExitTime;
+
+    private final static int NOTIFICATION = 123;
 
     /**
      * Called when the activity is first created.
@@ -32,9 +37,8 @@ public class MyActivity extends Activity implements View.OnClickListener {
         setContentView(R.layout.main);
         this.initView();
 
-        if (!isAddShortcut()) {
-             addShortcut();
-        }
+        //add shortcut
+        ShortcutUtil.handleWithShortcut(this);
     }
 
     /**
@@ -105,7 +109,10 @@ public class MyActivity extends Activity implements View.OnClickListener {
             }
 
             return true;
+        } else if (keyCode == KeyEvent.KEYCODE_HOME){
+            Log.d("Home", "HomeEvent is called");
         }
+
         //to intercept MENU, no operation when it is pressed.
         if (keyCode == KeyEvent.KEYCODE_MENU) {
             return true;
@@ -113,61 +120,44 @@ public class MyActivity extends Activity implements View.OnClickListener {
         return super.onKeyDown(keyCode, event);
     }
 
-    /**
-     * check if shortcut is installed
-     *
-     * @return
-     */
-    private boolean isAddShortcut() {
-        boolean isInstallShortcut = false;
+    private void addNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.drawable.icon)
+                .setContentTitle("flashlight")
+                .setContentText("click into the app and close flashlight!")
+                .setAutoCancel(true)
+                .setWhen(System.currentTimeMillis());
 
-        final ContentResolver resolver = this.getContentResolver();
+        // Creates an explicit intent for an Activity
+        Intent resultIntent = new Intent(this, MyActivity.class);
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(MyActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        builder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // mId allows you to update the notification later on.
+        mNotificationManager.notify(NOTIFICATION, builder.getNotification());
+    }
 
-        String AUTHORITY = "com.android.launcher.settings";
-        final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY
-                + "/favorites?notify=false");
-        Cursor cursor = resolver.query(CONTENT_URI, new String[]{"title", "iconResource"},
-                "title=?",new String[] { getString(R.string.app_name) }, null);
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.d("ddd", "MYonStop is called");
 
-        if (cursor != null && cursor.getCount() > 0) {
-            isInstallShortcut = true;
+        if (isLightOn) {
+            addNotification();
         }
-
-        return isInstallShortcut;
-    }
-
-    /**
-     * install shortcut.
-     */
-    private void addShortcut() {
-        Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
-        //set parameters
-        shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, getResources().getString(R.string.app_name));
-
-        //set the icon of shortcut
-        Parcelable icon = Intent.ShortcutIconResource.fromContext(this,R.drawable.icon);
-        shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,icon);
-
-        //if allows to add repeatedly
-        shortcut.putExtra("duplicate", false);
-
-        //set the operation when clicking the shortcut
-        Intent intent = new Intent(this, this.getClass());
-        intent.setAction(Intent.ACTION_MAIN);
-        intent.setFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
-        intent.addFlags(Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY);
-        intent.addCategory(Intent.CATEGORY_LAUNCHER);
-
-        shortcut.putExtra(Intent.EXTRA_SHORTCUT_INTENT, intent);
-
-        //broadcast
-        this.sendBroadcast(shortcut);
-    }
-
-    /**
-     * remove shortcut
-     */
-    private void removeShortcut() {
-
     }
 }
