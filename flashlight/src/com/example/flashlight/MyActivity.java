@@ -1,21 +1,16 @@
 package com.example.flashlight;
 
 import android.app.Activity;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.app.TaskStackBuilder;
-import android.content.Context;
-import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
+import com.example.flashlight.util.NotificationUtil;
 import com.example.flashlight.util.ShortcutUtil;
 
 public class MyActivity extends Activity implements View.OnClickListener {
@@ -33,6 +28,8 @@ public class MyActivity extends Activity implements View.OnClickListener {
      */
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        Log.d(this.getClass().getName(), "onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         this.initView();
@@ -47,14 +44,6 @@ public class MyActivity extends Activity implements View.OnClickListener {
     private void initView() {
         imageView = (ImageView) findViewById(R.id.imageview);
         imageView.setOnClickListener(this);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (camera != null) {
-            camera.release();
-        }
-        super.onBackPressed();
     }
 
     @Override
@@ -99,65 +88,32 @@ public class MyActivity extends Activity implements View.OnClickListener {
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Log.d(this.getClass().getName(), "onKeyDown");
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if ((System.currentTimeMillis() - mExitTime) > 2000) {
                 Toast.makeText(this, "再按一次退出",
                         Toast.LENGTH_SHORT).show();
                 mExitTime = System.currentTimeMillis();
             } else {
+                if (camera != null) {
+                    camera.release();
+                    camera = null;
+                }
                 finish();
             }
 
-            return true;
-        } else if (keyCode == KeyEvent.KEYCODE_HOME){
-            Log.d("Home", "HomeEvent is called");
-        }
-
-        //to intercept MENU, no operation when it is pressed.
-        if (keyCode == KeyEvent.KEYCODE_MENU) {
             return true;
         }
         return super.onKeyDown(keyCode, event);
     }
 
-    private void addNotification() {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(R.drawable.icon)
-                .setContentTitle("flashlight")
-                .setContentText("click into the app and close flashlight!")
-                .setAutoCancel(true)
-                .setWhen(System.currentTimeMillis());
-
-        // Creates an explicit intent for an Activity
-        Intent resultIntent = new Intent(this, MyActivity.class);
-        // The stack builder object will contain an artificial back stack for the
-        // started Activity.
-        // This ensures that navigating backward from the Activity leads out of
-        // your application to the Home screen.
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-        // Adds the back stack for the Intent (but not the Intent itself)
-        stackBuilder.addParentStack(MyActivity.class);
-        // Adds the Intent that starts the Activity to the top of the stack
-        stackBuilder.addNextIntent(resultIntent);
-        PendingIntent resultPendingIntent =
-                stackBuilder.getPendingIntent(
-                        0,
-                        PendingIntent.FLAG_UPDATE_CURRENT
-                );
-        builder.setContentIntent(resultPendingIntent);
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        // mId allows you to update the notification later on.
-        mNotificationManager.notify(NOTIFICATION, builder.getNotification());
-    }
-
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d("ddd", "MYonStop is called");
 
-        if (isLightOn) {
-            addNotification();
+        if (isLightOn && camera!= null) {
+            NotificationUtil.addNotification(this, MyActivity.class, NOTIFICATION, R.drawable.icon,
+                    "click into the app and close flashlight!");
         }
     }
 }
