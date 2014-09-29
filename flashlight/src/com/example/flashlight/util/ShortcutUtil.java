@@ -20,9 +20,9 @@ public class ShortcutUtil {
      *
      * @param activity
      */
-    public static void handleWithShortcut(Activity activity) {
+    public static void handleWithShortcut(Activity activity, int iconId) {
         if (!isAddShortcut(activity)) {
-            addShortcut(activity);
+            addShortcut(activity, iconId);
         }
     }
 
@@ -57,13 +57,13 @@ public class ShortcutUtil {
     /**
      * install shortcut.
      */
-    private static void addShortcut(Activity activity) {
+    private static void addShortcut(Activity activity, int iconId) {
         Intent shortcut = new Intent("com.android.launcher.action.INSTALL_SHORTCUT");
         //set parameters
-        shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, activity.getResources().getString(R.string.app_name));
+        shortcut.putExtra(Intent.EXTRA_SHORTCUT_NAME, activity.getString(R.string.app_name));
 
         //set the icon of shortcut
-        Parcelable icon = Intent.ShortcutIconResource.fromContext(activity, R.drawable.icon);
+        Parcelable icon = Intent.ShortcutIconResource.fromContext(activity, iconId);
         shortcut.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE,icon);
 
         //if allows to add repeatedly

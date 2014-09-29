@@ -38,7 +38,7 @@ public class MyActivity extends Activity implements View.OnClickListener {
         this.initView();
 
         //add shortcut
-        ShortcutUtil.handleWithShortcut(this);
+        ShortcutUtil.handleWithShortcut(this, R.drawable.icon);
     }
 
     /**
