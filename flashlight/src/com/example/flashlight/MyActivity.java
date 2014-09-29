@@ -92,7 +92,7 @@ public class MyActivity extends Activity implements View.OnClickListener {
         Log.d(this.getClass().getName(), "onKeyDown");
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             if ((System.currentTimeMillis() - mExitTime) > 2000) {
-                Toast.makeText(this, "再按一次退出",
+                Toast.makeText(this, R.string.exit,
                         Toast.LENGTH_SHORT).show();
                 mExitTime = System.currentTimeMillis();
             } else {
@@ -114,7 +114,7 @@ public class MyActivity extends Activity implements View.OnClickListener {
 
         if (isLightOn && camera!= null) {
             NotificationUtil.addNotification(this, MyActivity.class, NOTIFICATION, R.drawable.icon,
-                    "click into the app and close flashlight!");
+                    getString(R.string.notification));
         }
     }
 

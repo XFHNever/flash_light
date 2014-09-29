@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">flashlight</string>
+    <string name="exit">Press again to exit</string>
+    <string name="notification">Click into the app and close flashlight!</string>
 </resources>
