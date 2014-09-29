@@ -10,6 +10,11 @@
     <!-- shortcut -->
     <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT"/>
     <uses-permission android:name="com.android.launcher.permission.READ_SETTINGS"/>
+    <!-- umeng-->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"></uses-permission>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.INTERNET"></uses-permission>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"></uses-permission>
 
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" />
@@ -21,6 +26,8 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <meta-data android:value="54291dcdfd98c5cfca0045a1" android:name="UMENG_APPKEY"></meta-data>
+            <meta-data android:value="Wandoujia" android:name="UMENG_CHANNEL"/>
         </activity>
     </application>
 </manifest>

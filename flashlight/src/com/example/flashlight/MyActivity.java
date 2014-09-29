@@ -12,6 +12,7 @@ import android.widget.ImageView;
 import android.widget.Toast;
 import com.example.flashlight.util.NotificationUtil;
 import com.example.flashlight.util.ShortcutUtil;
+import com.umeng.analytics.MobclickAgent;
 
 public class MyActivity extends Activity implements View.OnClickListener {
     private Camera camera;
@@ -115,5 +116,16 @@ public class MyActivity extends Activity implements View.OnClickListener {
             NotificationUtil.addNotification(this, MyActivity.class, NOTIFICATION, R.drawable.icon,
                     "click into the app and close flashlight!");
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    public void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
     }
 }
